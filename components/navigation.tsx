@@ -49,7 +49,7 @@ export const Navigation = () => {
   if (isMobile) {
     return (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
-        <SheetTrigger>
+        <SheetTrigger asChild>
           <Button
             variant={"outline"}
             size={"sm"}
@@ -57,21 +57,21 @@ export const Navigation = () => {
           >
             <Menu className="size-4" />
           </Button>
-          <SheetContent side={"left"}>
-            <nav className="flex flex-col space-y-2 pt-6">
-              {routes.map((route) => (
-                <Button
-                  key={route.href}
-                  variant={route.href == pathName ? "outline" : "ghost"}
-                  onClick={() => onCLick(route.href)}
-                  className="flex justify-start"
-                >
-                  {route.label}
-                </Button>
-              ))}
-            </nav>
-          </SheetContent>
         </SheetTrigger>
+        <SheetContent side={"left"}>
+          <nav className="flex flex-col space-y-2 pt-6">
+            {routes.map((route) => (
+              <Button
+                key={route.href}
+                variant={route.href == pathName ? "outline" : "ghost"}
+                onClick={() => onCLick(route.href)}
+                className="flex justify-start"
+              >
+                {route.label}
+              </Button>
+            ))}
+          </nav>
+        </SheetContent>
       </Sheet>
     );
   }
