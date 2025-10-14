@@ -7,9 +7,11 @@ import {
   DropdownMenuTrigger,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { useDeleteAccount } from "@/features/accounts/api/use-delete-account";
 import { EditAccountSheet } from "@/features/accounts/components/edit-account-sheet";
 import { useOpenAccount } from "@/features/accounts/hooks/use-open-account";
-import { Edit, MoreHorizontal } from "lucide-react";
+import { useConfirm } from "@/hooks/use-confirm";
+import { Edit, MoreHorizontal, Trash } from "lucide-react";
 import { useState } from "react";
 
 type Props = {
@@ -17,10 +19,24 @@ type Props = {
 };
 
 export const Actions = ({ id }: Props) => {
+  const [ConfirmationDialog, confirm] = useConfirm(
+    "are you sure?",
+    "you are about to delete this transaction"
+  );
+
   const { onOpen } = useOpenAccount();
+  const deleteMutation = useDeleteAccount(id);
+
+  const handleDeleteAccount = async () => {
+    const ok = await confirm();
+    if (ok) {
+      deleteMutation.mutate();
+    }
+  };
 
   return (
     <>
+      <ConfirmationDialog />
       <EditAccountSheet />
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -30,13 +46,22 @@ export const Actions = ({ id }: Props) => {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem
-            disabled={false}
+            disabled={deleteMutation.isPending}
             onClick={() => {
               setTimeout(() => onOpen(id), 0);
             }}
           >
             <Edit className="size-4 mr-2" />
             Edit
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            disabled={deleteMutation.isPending}
+            onClick={() => {
+              setTimeout(() => handleDeleteAccount(), 0);
+            }}
+          >
+            <Trash className="size-4 mr-2" />
+            Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
