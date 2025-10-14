@@ -9,17 +9,18 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 
-// import { columns, Payment } from "./columns";
 import { DataTable } from "@/components/data-table";
 import { columns } from "./columns";
 import { useGetAccounts } from "@/features/accounts/api/use-get-accounts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useBulkDeleteAccounts } from "@/features/accounts/api/use-bulk-delete";
 
 const AccountsPage = () => {
   const [isMounted, setIsMounted] = useState(false);
   const { onOpen } = useNewAccount();
 
   const accountQueries = useGetAccounts();
+  const deleteAccounts = useBulkDeleteAccounts();
   const accounts = accountQueries.data || [];
 
   useEffect(() => {
@@ -29,6 +30,8 @@ const AccountsPage = () => {
   const handleOpen = () => {
     onOpen();
   };
+
+  const isDisable = accountQueries.isLoading || deleteAccounts.isPending;
 
   if (!isMounted) return;
 
@@ -59,11 +62,14 @@ const AccountsPage = () => {
         </CardHeader>
         <CardContent>
           <DataTable
-            onDelete={() => {}}
-            filterKey="email"
+            onDelete={(row) => {
+              const ids = row.map((r) => r.original.id);
+              deleteAccounts.mutate({ ids });
+            }}
+            filterKey="name"
             columns={columns}
             data={accounts}
-            disabled={false}
+            disabled={isDisable}
           />
         </CardContent>
       </Card>
